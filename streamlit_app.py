@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="🌾 AgriWise AI",
     page_icon="🌾",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # Start collapsed on mobile
 )
 
 # Mobile-optimized CSS
@@ -233,12 +233,6 @@ st.markdown("""
         color: #2C3E50 !important;
     }
     
-    /* Force all calculation results to be visible */
-    .stMarkdown [data-testid="stMarkdownContainer"], 
-    .stMarkdown [data-testid="stMarkdownContainer"] * {
-        color: #2C3E50 !important;
-    }
-    
     /* Ensure all dynamic content is visible */
     .stMarkdown div[data-testid="stMarkdownContainer"] p,
     .stMarkdown div[data-testid="stMarkdownContainer"] div,
@@ -287,8 +281,9 @@ st.markdown("""
         background-color: #f8f9fa !important;
     }
     
-    /* Hide sidebar on mobile when not needed */
+    /* Fix mobile sidebar behavior */
     @media (max-width: 768px) {
+        /* Make sidebar work properly on mobile */
         .css-1d391kg {
             position: fixed !important;
             top: 0 !important;
@@ -297,13 +292,39 @@ st.markdown("""
             height: 100% !important;
             z-index: 1000 !important;
             background: rgba(0, 0, 0, 0.5) !important;
+            display: none !important;
         }
+        
+        /* Show sidebar when active */
+        .css-1d391kg[data-testid="collapsedControl"] {
+            display: block !important;
+        }
+        
         .css-1d391kg > div {
             background: white !important;
             width: 80% !important;
             height: 100% !important;
             padding: 1rem !important;
             overflow-y: auto !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        
+        /* Ensure sidebar button is visible */
+        .css-1d391kg [data-testid="collapsedControl"] {
+            display: block !important;
+            position: fixed !important;
+            top: 1rem !important;
+            left: 1rem !important;
+            z-index: 1001 !important;
+            background: #4CAF50 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 1.5rem !important;
         }
     }
     
@@ -316,10 +337,28 @@ st.markdown("""
             touch-action: manipulation !important;
         }
     }
+    
+    /* Force all outputs to be visible on dark themes */
+    .stMarkdown div[data-testid="stMarkdownContainer"],
+    .stMarkdown div[data-testid="stMarkdownContainer"] *,
+    .stMarkdown div[data-testid="stMarkdownContainer"] p,
+    .stMarkdown div[data-testid="stMarkdownContainer"] div,
+    .stMarkdown div[data-testid="stMarkdownContainer"] span,
+    .stMarkdown div[data-testid="stMarkdownContainer"] strong,
+    .stMarkdown div[data-testid="stMarkdownContainer"] em,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h1,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h2,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h3,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h4,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h5,
+    .stMarkdown div[data-testid="stMarkdownContainer"] h6 {
+        color: #2C3E50 !important;
+        background: white !important;
+    }
 </style>
 
 <script>
-// Mobile selectbox improvement
+// Mobile sidebar improvement
 document.addEventListener('DOMContentLoaded', function() {
     // Close selectbox dropdowns when clicking outside
     document.addEventListener('click', function(e) {
@@ -345,6 +384,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+        
+        // Fix mobile sidebar
+        const sidebarButton = document.querySelector('[data-testid="collapsedControl"]');
+        if (sidebarButton) {
+            sidebarButton.addEventListener('click', function() {
+                const sidebar = document.querySelector('.css-1d391kg');
+                if (sidebar) {
+                    sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        }
     }
 });
 </script>
@@ -549,12 +599,56 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Mobile-optimized sidebar
-    st.sidebar.title("🌾 Smart Farming Tools")
+    # Mobile-friendly navigation
+    st.markdown("""
+    <style>
+    @media (max-width: 768px) {
+        .mobile-nav {
+            display: flex !important;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .mobile-nav button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 120px;
+        }
+        .mobile-nav button:hover {
+            background: #2E7D32;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    # Add a mobile-friendly navigation hint
-    if st.sidebar.button("📱 Mobile Menu"):
-        st.sidebar.success("Navigation menu is ready!")
+    # Mobile navigation buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🏠 Dashboard", use_container_width=True):
+            st.session_state.current_tool = "dashboard"
+        if st.button("🔍 Disease", use_container_width=True):
+            st.session_state.current_tool = "disease"
+        if st.button("🌤️ Weather", use_container_width=True):
+            st.session_state.current_tool = "weather"
+    with col2:
+        if st.button("📊 Market", use_container_width=True):
+            st.session_state.current_tool = "market"
+        if st.button("💰 Loan", use_container_width=True):
+            st.session_state.current_tool = "loan"
+        if st.button("🗣️ Voice", use_container_width=True):
+            st.session_state.current_tool = "voice"
+    
+    # Desktop sidebar
+    st.sidebar.title("🌾 Smart Farming Tools")
     
     tool = st.sidebar.selectbox(
         "Choose a Tool",
@@ -566,19 +660,24 @@ def main():
     st.sidebar.markdown("**🌐 Version:** Streamlit Mobile")
     st.sidebar.markdown("**📱 Optimized for:** Mobile & Desktop")
     
+    # Check for mobile navigation
+    current_tool = getattr(st.session_state, 'current_tool', None)
+    
     # Route to appropriate function
-    if tool == "🏠 Dashboard":
+    if current_tool == "dashboard" or tool == "🏠 Dashboard":
         show_dashboard()
-    elif tool == "🔍 Disease Detection":
+    elif current_tool == "disease" or tool == "🔍 Disease Detection":
         show_disease()
-    elif tool == "🌤️ Weather Prediction":
+    elif current_tool == "weather" or tool == "🌤️ Weather Prediction":
         show_weather()
-    elif tool == "📊 Market Intelligence":
+    elif current_tool == "market" or tool == "📊 Market Intelligence":
         show_market()
-    elif tool == "💰 Loan Assessment":
+    elif current_tool == "loan" or tool == "💰 Loan Assessment":
         show_loans()
-    elif tool == "🗣️ Voice Interface":
+    elif current_tool == "voice" or tool == "🗣️ Voice Interface":
         show_voice()
+    else:
+        show_dashboard()
 
 def show_dashboard():
     st.title("🌾 Welcome to AgriWise AI")
@@ -787,7 +886,7 @@ def show_loans():
             st.info("Please check your input values and try again.")
 
 def show_voice():
-    st.title("🗣️ Voice Interface")
+    st.title("��️ Voice Interface")
     
     st.info("🎤 Multi-language voice support for inclusive access")
     
