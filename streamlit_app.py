@@ -2,38 +2,196 @@ import streamlit as st
 import random
 from datetime import datetime, timedelta
 
-# Page config
+# Page config with mobile optimization
 st.set_page_config(
     page_title="🌾 AgriWise AI",
     page_icon="🌾",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Mobile-optimized CSS
 st.markdown("""
 <style>
+    /* Mobile-first responsive design */
+    @media (max-width: 768px) {
+        .main-header {
+            padding: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+        .main-header h1 {
+            font-size: 2rem !important;
+        }
+        .main-header h3 {
+            font-size: 1rem !important;
+        }
+        .feature-card {
+            padding: 1rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        .result-card {
+            padding: 1rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        /* Fix sidebar for mobile */
+        .css-1d391kg {
+            width: 100% !important;
+        }
+        /* Ensure content is visible on mobile */
+        .main .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+    }
+    
+    /* Main styles with better contrast */
     .main-header {
         background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
         padding: 2rem;
         border-radius: 12px;
-        color: white;
+        color: white !important;
         text-align: center;
         margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    
     .feature-card {
-        background: white;
+        background: white !important;
+        color: #2C3E50 !important;
         padding: 1.5rem;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin: 1rem 0;
         border-left: 5px solid #4CAF50;
     }
+    
     .result-card {
-        background: linear-gradient(135deg, #E8F5E8, #F1F8E9);
+        background: linear-gradient(135deg, #E8F5E8, #F1F8E9) !important;
+        color: #2C3E50 !important;
         padding: 1.5rem;
         border-radius: 12px;
         margin: 1rem 0;
         border-left: 5px solid #2E7D32;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Fix sidebar styling */
+    .css-1d391kg {
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Ensure text is readable */
+    .stMarkdown, .stText, .stSelectbox, .stNumberInput, .stSlider {
+        color: #2C3E50 !important;
+    }
+    
+    /* Mobile-friendly buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #2E7D32, #4CAF50) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 500 !important;
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #1B5E20, #388E3C) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    /* Mobile-friendly file uploader */
+    .stFileUploader {
+        border: 2px dashed #4CAF50 !important;
+        border-radius: 12px !important;
+        padding: 2rem !important;
+        text-align: center !important;
+        background: #f8f9fa !important;
+    }
+    
+    /* Mobile-friendly selectbox */
+    .stSelectbox > div > div {
+        background: white !important;
+        color: #2C3E50 !important;
+        border: 2px solid #4CAF50 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Mobile-friendly number input */
+    .stNumberInput > div > div > input {
+        background: white !important;
+        color: #2C3E50 !important;
+        border: 2px solid #4CAF50 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Mobile-friendly slider */
+    .stSlider > div > div > div > div {
+        background: #4CAF50 !important;
+    }
+    
+    /* Ensure metrics are visible */
+    .stMetric {
+        background: white !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Mobile-friendly info boxes */
+    .stAlert {
+        background: #E3F2FD !important;
+        color: #1565C0 !important;
+        border: 1px solid #2196F3 !important;
+        border-radius: 8px !important;
+        padding: 1rem !important;
+    }
+    
+    /* Mobile-friendly success/error messages */
+    .stSuccess {
+        background: #E8F5E8 !important;
+        color: #2E7D32 !important;
+        border: 1px solid #4CAF50 !important;
+        border-radius: 8px !important;
+        padding: 1rem !important;
+    }
+    
+    .stError {
+        background: #FFEBEE !important;
+        color: #C62828 !important;
+        border: 1px solid #F44336 !important;
+        border-radius: 8px !important;
+        padding: 1rem !important;
+    }
+    
+    /* Mobile-friendly text areas */
+    .stTextArea > div > div > textarea {
+        background: white !important;
+        color: #2C3E50 !important;
+        border: 2px solid #4CAF50 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Hide sidebar on mobile when not needed */
+    @media (max-width: 768px) {
+        .css-1d391kg {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1000 !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+        }
+        .css-1d391kg > div {
+            background: white !important;
+            width: 80% !important;
+            height: 100% !important;
+            padding: 1rem !important;
+            overflow-y: auto !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -200,7 +358,7 @@ def load_ai():
 
 ai = load_ai()
 
-# Main app
+# Main app with mobile-optimized navigation
 def main():
     st.markdown("""
     <div class="main-header">
@@ -210,13 +368,24 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Sidebar
+    # Mobile-optimized sidebar
     st.sidebar.title("🌾 Smart Farming Tools")
+    
+    # Add a mobile-friendly navigation hint
+    if st.sidebar.button("📱 Mobile Menu"):
+        st.sidebar.success("Navigation menu is ready!")
+    
     tool = st.sidebar.selectbox(
         "Choose a Tool",
         ["🏠 Dashboard", "🔍 Disease Detection", "🌤️ Weather Prediction", "📊 Market Intelligence", "💰 Loan Assessment", "🗣️ Voice Interface"]
     )
     
+    # Add version info
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**🌐 Version:** Streamlit Mobile")
+    st.sidebar.markdown("**📱 Optimized for:** Mobile & Desktop")
+    
+    # Route to appropriate function
     if tool == "🏠 Dashboard":
         show_dashboard()
     elif tool == "🔍 Disease Detection":
@@ -233,7 +402,8 @@ def main():
 def show_dashboard():
     st.title("🌾 Welcome to AgriWise AI")
     
-    col1, col2 = st.columns(2)
+    # Mobile-friendly layout
+    col1, col2 = st.columns([1, 1])
     with col1:
         st.markdown("""
         <div class="feature-card">
@@ -262,17 +432,16 @@ def show_dashboard():
         </div>
         """, unsafe_allow_html=True)
     
-    # Quick stats
+    # Mobile-friendly stats
     st.subheader("📈 Quick Statistics")
-    col1, col2, col3, col4 = st.columns(4)
     
-    with col1:
+    # Use columns that stack on mobile
+    stats_cols = st.columns(2)
+    with stats_cols[0]:
         st.metric("🌾 Farmers Served", "5,000+")
-    with col2:
         st.metric("🔍 Disease Accuracy", "95%")
-    with col3:
+    with stats_cols[1]:
         st.metric("🌤️ Weather Forecast", "7 Days")
-    with col4:
         st.metric("📊 Market Insights", "Real-time")
 
 def show_disease():
@@ -285,7 +454,7 @@ def show_disease():
     if uploaded_file is not None:
         st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
         
-        if st.button("🔍 Analyze Disease"):
+        if st.button("🔍 Analyze Disease", use_container_width=True):
             with st.spinner("🤖 AI is analyzing your crop image..."):
                 result = ai.predict_disease(uploaded_file)
                 
@@ -312,17 +481,20 @@ def show_weather():
     
     location = st.text_input("📍 Enter your location", value="Nairobi")
     
-    if st.button("🌤️ Get Weather Forecast"):
+    if st.button("🌤️ Get Weather Forecast", use_container_width=True):
         with st.spinner("🌤️ Fetching weather data..."):
             weather_data = ai.get_weather(location)
             
             st.subheader(f"🌤️ 7-Day Weather Forecast for {location}")
             
-            # Display weather data
-            for day in weather_data:
-                st.markdown(f"""
-                **{day['date']}:** {day['condition']} | 🌡️ {day['temperature']}°C | 💧 {day['rainfall']}mm | 💨 {day['humidity']}% humidity
-                """)
+            # Mobile-friendly weather display
+            for i, day in enumerate(weather_data):
+                with st.container():
+                    st.markdown(f"""
+                    **{day['date']}:** {day['condition']} | 🌡️ {day['temperature']}°C | 💧 {day['rainfall']}mm | 💨 {day['humidity']}% humidity
+                    """)
+                    if i < len(weather_data) - 1:
+                        st.markdown("---")
             
             # Weather insights
             st.subheader("🌾 Farming Recommendations")
@@ -343,7 +515,7 @@ def show_market():
     
     crop = st.selectbox("🌾 Select Crop", ai.crops)
     
-    if st.button("📊 Get Market Data"):
+    if st.button("📊 Get Market Data", use_container_width=True):
         with st.spinner("📊 Analyzing market trends..."):
             result = ai.get_market_prices(crop)
             
@@ -358,11 +530,11 @@ def show_market():
             </div>
             """, unsafe_allow_html=True)
             
-            # Price comparison
-            col1, col2 = st.columns(2)
-            with col1:
+            # Mobile-friendly price comparison
+            price_cols = st.columns(2)
+            with price_cols[0]:
                 st.metric("Current Price", f"KSH {result['current_price']}/kg")
-            with col2:
+            with price_cols[1]:
                 st.metric("Forecast Price", f"KSH {result['forecast_price']}/kg")
 
 def show_loans():
@@ -370,19 +542,20 @@ def show_loans():
     
     st.info("🏦 Get AI-powered loan eligibility assessment for farming improvements")
     
-    col1, col2 = st.columns(2)
+    # Mobile-friendly form layout
+    st.subheader("📋 Farmer Information")
     
-    with col1:
-        monthly_income = st.number_input("💰 Monthly Income (KSH)", min_value=0, value=5000)
-        land_size = st.number_input("🌾 Land Size (Acres)", min_value=0.0, value=2.0)
-        crop_yield = st.number_input("📦 Expected Crop Yield (kg)", min_value=0, value=1000)
+    monthly_income = st.number_input("💰 Monthly Income (KSH)", min_value=0, value=5000)
+    land_size = st.number_input("🌾 Land Size (Acres)", min_value=0.0, value=2.0)
+    crop_yield = st.number_input("📦 Expected Crop Yield (kg)", min_value=0, value=1000)
     
-    with col2:
-        credit_score = st.slider("📊 Credit Score", min_value=300, max_value=850, value=650)
-        age = st.number_input("👤 Age", min_value=18, max_value=80, value=35)
-        experience = st.number_input("🌱 Farming Experience (Years)", min_value=0, value=5)
+    st.subheader("📊 Financial Information")
     
-    if st.button("💰 Assess Loan Eligibility"):
+    credit_score = st.slider("📊 Credit Score", min_value=300, max_value=850, value=650)
+    age = st.number_input("👤 Age", min_value=18, max_value=80, value=35)
+    experience = st.number_input("🌱 Farming Experience (Years)", min_value=0, value=5)
+    
+    if st.button("💰 Assess Loan Eligibility", use_container_width=True):
         with st.spinner("🤖 Analyzing loan eligibility..."):
             result = ai.assess_loan(monthly_income, land_size, experience, credit_score, age, crop_yield)
             
@@ -431,7 +604,7 @@ def show_voice():
     st.subheader("🎤 Voice Input (Simulated)")
     voice_text = st.text_area("Speak your question here...", placeholder="Example: What's the weather like today?")
     
-    if st.button("🎤 Process Voice Input"):
+    if st.button("🎤 Process Voice Input", use_container_width=True):
         if voice_text:
             st.success(f"✅ Voice input processed in {language}: {voice_text}")
             st.info("🔧 In production, this would use real speech recognition and text-to-speech APIs.")
