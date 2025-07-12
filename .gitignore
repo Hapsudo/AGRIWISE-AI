@@ -165,9 +165,6 @@ tmp/
 *.mp3
 *.ogg
 
-# Image uploads (if any)
-uploads/
-images/
 
 # Database files
 *.db
