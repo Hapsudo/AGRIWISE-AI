@@ -2,13 +2,17 @@ import streamlit as st
 import random
 from datetime import datetime, timedelta
 
-# Page config with mobile optimization
+# Page config with mobile optimization and cache busting
 st.set_page_config(
-    page_title="🌾 AgriWise AI",
+    page_title="🌾 AgriWise AI v2.1",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="collapsed"  # Start collapsed on mobile
 )
+
+# Force cache refresh
+st.cache_data.clear()
+st.cache_resource.clear()
 
 # Mobile-optimized CSS
 st.markdown("""
@@ -886,7 +890,7 @@ def show_loans():
             st.info("Please check your input values and try again.")
 
 def show_voice():
-    st.title("��️ Voice Interface")
+    st.title("🗣️ Voice Interface")
     
     st.info("🎤 Multi-language voice support for inclusive access")
     
