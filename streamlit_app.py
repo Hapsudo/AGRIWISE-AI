@@ -80,18 +80,8 @@ st.markdown("""
         background-color: #f8f9fa !important;
     }
     
-    /* Ensure text is readable on all themes */
-    .stMarkdown, .stText, .stSelectbox, .stNumberInput, .stSlider {
-        color: #2C3E50 !important;
-    }
-    
-    /* Force text visibility on dark themes */
+    /* Ensure text is readable on all themes - but don't interfere with functionality */
     .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: #2C3E50 !important;
-    }
-    
-    /* Ensure all Streamlit text elements are visible */
-    .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio {
         color: #2C3E50 !important;
     }
     
@@ -121,12 +111,31 @@ st.markdown("""
         background: #f8f9fa !important;
     }
     
-    /* Mobile-friendly selectbox */
+    /* Mobile-friendly selectbox - fix mobile interaction */
     .stSelectbox > div > div {
         background: white !important;
         color: #2C3E50 !important;
         border: 2px solid #4CAF50 !important;
         border-radius: 8px !important;
+    }
+    
+    /* Fix mobile selectbox dropdown behavior */
+    @media (max-width: 768px) {
+        .stSelectbox > div > div[data-baseweb="select"] {
+            position: relative !important;
+        }
+        .stSelectbox > div > div[data-baseweb="popover"] {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 9999 !important;
+            background: white !important;
+            border: 2px solid #4CAF50 !important;
+            border-radius: 8px !important;
+            max-height: 200px !important;
+            overflow-y: auto !important;
+        }
     }
     
     /* Mobile-friendly number input */
@@ -202,11 +211,6 @@ st.markdown("""
         color: #2C3E50 !important;
     }
     
-    /* Force all Streamlit elements to have proper contrast */
-    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo {
-        color: #2C3E50 !important;
-    }
-    
     /* Override any dark theme styles */
     [data-testid="stAppViewContainer"] {
         background-color: #f8f9fa !important;
@@ -236,7 +240,48 @@ st.markdown("""
             overflow-y: auto !important;
         }
     }
+    
+    /* Add mobile touch handling for selectbox */
+    @media (max-width: 768px) {
+        .stSelectbox > div > div[data-baseweb="select"] {
+            touch-action: manipulation !important;
+        }
+        .stSelectbox > div > div[data-baseweb="popover"] {
+            touch-action: manipulation !important;
+        }
+    }
 </style>
+
+<script>
+// Mobile selectbox improvement
+document.addEventListener('DOMContentLoaded', function() {
+    // Close selectbox dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.stSelectbox')) {
+            const dropdowns = document.querySelectorAll('.stSelectbox [data-baseweb="popover"]');
+            dropdowns.forEach(dropdown => {
+                if (dropdown.style.display !== 'none') {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+    });
+    
+    // Improve mobile touch handling
+    if (window.innerWidth <= 768) {
+        const selectboxes = document.querySelectorAll('.stSelectbox');
+        selectboxes.forEach(selectbox => {
+            selectbox.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                const input = selectbox.querySelector('input');
+                if (input) {
+                    input.focus();
+                }
+            });
+        });
+    }
+});
+</script>
 """, unsafe_allow_html=True)
 
 class AgriWiseAI:
@@ -315,34 +360,53 @@ class AgriWiseAI:
     
     def get_market_prices(self, crop):
         """Get market prices (simulated)"""
-        base_prices = {
-            'tomato': 50, 'potato': 30, 'corn': 25, 
-            'wheat': 35, 'rice': 40, 'beans': 45
-        }
-        current = base_prices.get(crop, 30)
-        forecast = current + random.uniform(-10, 15)
-        
-        return {
-            'crop': crop,
-            'current_price': round(current, 2),
-            'forecast_price': round(forecast, 2),
-            'trend': '📈 UP' if forecast > current else '📉 DOWN',
-            'confidence': round(random.uniform(0.6, 0.9), 2),
-            'recommendation': self._get_market_recommendation(current, forecast)
-        }
+        try:
+            base_prices = {
+                'tomato': 50, 'potato': 30, 'corn': 25, 
+                'wheat': 35, 'rice': 40, 'beans': 45
+            }
+            current = base_prices.get(crop, 30)
+            forecast = current + random.uniform(-10, 15)
+            
+            return {
+                'crop': crop,
+                'current_price': round(current, 2),
+                'forecast_price': round(forecast, 2),
+                'trend': '📈 UP' if forecast > current else '📉 DOWN',
+                'confidence': round(random.uniform(0.6, 0.9), 2),
+                'recommendation': self._get_market_recommendation(current, forecast)
+            }
+        except Exception as e:
+            st.error(f"Error in market analysis: {str(e)}")
+            return {
+                'crop': crop,
+                'current_price': 30.0,
+                'forecast_price': 32.0,
+                'trend': '📊 STABLE',
+                'confidence': 0.7,
+                'recommendation': 'Market data temporarily unavailable'
+            }
     
     def _get_market_recommendation(self, current, forecast):
         """Get market recommendations"""
-        if forecast > current * 1.1:
-            return "Consider holding harvest for better prices"
-        elif forecast < current * 0.9:
-            return "Consider selling soon to avoid price drops"
-        else:
-            return "Prices are stable, plan harvest based on crop readiness"
+        try:
+            if forecast > current * 1.1:
+                return "Consider holding harvest for better prices"
+            elif forecast < current * 0.9:
+                return "Consider selling soon to avoid price drops"
+            else:
+                return "Prices are stable, plan harvest based on crop readiness"
+        except Exception as e:
+            return "Consult local market experts for recommendations"
     
     def assess_loan(self, income, land, experience, credit_score, age, crop_yield):
         """Assess loan eligibility (simulated)"""
         try:
+            # Validate inputs
+            if not all(isinstance(x, (int, float)) for x in [income, land, experience, credit_score, age, crop_yield]):
+                st.error("Please enter valid numbers for all fields")
+                return None
+            
             # Simple scoring system
             score = 0
             if income > 5000: score += 2
@@ -392,7 +456,15 @@ class AgriWiseAI:
                 'score': score
             }
         except Exception as e:
-            return {'error': str(e)}
+            st.error(f"Error in loan assessment: {str(e)}")
+            return {
+                'eligible': False,
+                'probability': 0.0,
+                'recommended_amount': 0.0,
+                'risk_level': 'Error',
+                'conditions': ['Please check your input values'],
+                'score': 0
+            }
 
 # Initialize AI
 @st.cache_resource
@@ -559,26 +631,33 @@ def show_market():
     crop = st.selectbox("🌾 Select Crop", ai.crops)
     
     if st.button("📊 Get Market Data", use_container_width=True):
-        with st.spinner("📊 Analyzing market trends..."):
-            result = ai.get_market_prices(crop)
-            
-            st.markdown(f"""
-            <div class="result-card">
-                <h4>📊 {result['crop'].upper()} Market Intelligence</h4>
-                <p><strong>Current Price:</strong> KSH {result['current_price']}/kg</p>
-                <p><strong>Forecast Price:</strong> KSH {result['forecast_price']}/kg</p>
-                <p><strong>Trend:</strong> {result['trend']}</p>
-                <p><strong>Confidence:</strong> {(result['confidence'] * 100):.1f}%</p>
-                <p><strong>💡 Recommendation:</strong> {result['recommendation']}</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Mobile-friendly price comparison
-            price_cols = st.columns(2)
-            with price_cols[0]:
-                st.metric("Current Price", f"KSH {result['current_price']}/kg")
-            with price_cols[1]:
-                st.metric("Forecast Price", f"KSH {result['forecast_price']}/kg")
+        try:
+            with st.spinner("📊 Analyzing market trends..."):
+                result = ai.get_market_prices(crop)
+                
+                if result:
+                    st.markdown(f"""
+                    <div class="result-card">
+                        <h4>📊 {result['crop'].upper()} Market Intelligence</h4>
+                        <p><strong>Current Price:</strong> KSH {result['current_price']}/kg</p>
+                        <p><strong>Forecast Price:</strong> KSH {result['forecast_price']}/kg</p>
+                        <p><strong>Trend:</strong> {result['trend']}</p>
+                        <p><strong>Confidence:</strong> {(result['confidence'] * 100):.1f}%</p>
+                        <p><strong>💡 Recommendation:</strong> {result['recommendation']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Mobile-friendly price comparison
+                    price_cols = st.columns(2)
+                    with price_cols[0]:
+                        st.metric("Current Price", f"KSH {result['current_price']}/kg")
+                    with price_cols[1]:
+                        st.metric("Forecast Price", f"KSH {result['forecast_price']}/kg")
+                else:
+                    st.error("❌ Unable to fetch market data. Please try again.")
+        except Exception as e:
+            st.error(f"❌ Error: {str(e)}")
+            st.info("Please try again or contact support if the issue persists.")
 
 def show_loans():
     st.title("💰 Micro-Loan Assessment")
@@ -599,29 +678,33 @@ def show_loans():
     experience = st.number_input("🌱 Farming Experience (Years)", min_value=0, value=5)
     
     if st.button("💰 Assess Loan Eligibility", use_container_width=True):
-        with st.spinner("🤖 Analyzing loan eligibility..."):
-            result = ai.assess_loan(monthly_income, land_size, experience, credit_score, age, crop_yield)
-            
-            if 'error' not in result:
-                status_icon = "✅" if result['eligible'] else "❌"
-                status_text = "ELIGIBLE" if result['eligible'] else "NOT ELIGIBLE"
+        try:
+            with st.spinner("🤖 Analyzing loan eligibility..."):
+                result = ai.assess_loan(monthly_income, land_size, experience, credit_score, age, crop_yield)
                 
-                st.markdown(f"""
-                <div class="result-card">
-                    <h4>{status_icon} Loan Assessment Result</h4>
-                    <p><strong>Status:</strong> {status_text}</p>
-                    <p><strong>Probability:</strong> {(result['probability'] * 100):.1f}%</p>
-                    <p><strong>Recommended Amount:</strong> KSH {result['recommended_amount']:,.2f}</p>
-                    <p><strong>Risk Level:</strong> {result['risk_level']}</p>
-                    <p><strong>Score:</strong> {result['score']}/8</p>
-                    <h5>📋 Conditions:</h5>
-                    <ul>
-                        {''.join([f'<li>{condition}</li>' for condition in result['conditions']])}
-                    </ul>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.error(f"❌ Error: {result['error']}")
+                if result:
+                    status_icon = "✅" if result['eligible'] else "❌"
+                    status_text = "ELIGIBLE" if result['eligible'] else "NOT ELIGIBLE"
+                    
+                    st.markdown(f"""
+                    <div class="result-card">
+                        <h4>{status_icon} Loan Assessment Result</h4>
+                        <p><strong>Status:</strong> {status_text}</p>
+                        <p><strong>Probability:</strong> {(result['probability'] * 100):.1f}%</p>
+                        <p><strong>Recommended Amount:</strong> KSH {result['recommended_amount']:,.2f}</p>
+                        <p><strong>Risk Level:</strong> {result['risk_level']}</p>
+                        <p><strong>Score:</strong> {result['score']}/8</p>
+                        <h5>📋 Conditions:</h5>
+                        <ul>
+                            {''.join([f'<li>{condition}</li>' for condition in result['conditions']])}
+                        </ul>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.error("❌ Unable to assess loan eligibility. Please check your input values.")
+        except Exception as e:
+            st.error(f"❌ Error: {str(e)}")
+            st.info("Please check your input values and try again.")
 
 def show_voice():
     st.title("🗣️ Voice Interface")
