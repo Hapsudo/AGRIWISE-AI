@@ -206,6 +206,72 @@ st.markdown("""
         border-radius: 8px !important;
     }
     
+    /* Force all Streamlit elements to have proper contrast */
+    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo {
+        color: #2C3E50 !important;
+    }
+    
+    /* Force calculation results to be visible on dark themes */
+    .stMarkdown div, .stMarkdown p, .stMarkdown span, .stMarkdown strong, .stMarkdown em {
+        color: #2C3E50 !important;
+    }
+    
+    /* Ensure all result displays are visible */
+    .result-card, .result-card *, .result-card p, .result-card h4, .result-card h5, .result-card ul, .result-card li {
+        color: #2C3E50 !important;
+        background: white !important;
+    }
+    
+    /* Force metric displays to be visible */
+    .stMetric, .stMetric *, .stMetric div, .stMetric label, .stMetric span {
+        color: #2C3E50 !important;
+        background: white !important;
+    }
+    
+    /* Ensure all text outputs are visible */
+    .stText, .stText *, .stText div, .stText span, .stText p {
+        color: #2C3E50 !important;
+    }
+    
+    /* Force all calculation results to be visible */
+    .stMarkdown [data-testid="stMarkdownContainer"], 
+    .stMarkdown [data-testid="stMarkdownContainer"] * {
+        color: #2C3E50 !important;
+    }
+    
+    /* Ensure all dynamic content is visible */
+    .stMarkdown div[data-testid="stMarkdownContainer"] p,
+    .stMarkdown div[data-testid="stMarkdownContainer"] div,
+    .stMarkdown div[data-testid="stMarkdownContainer"] span,
+    .stMarkdown div[data-testid="stMarkdownContainer"] strong,
+    .stMarkdown div[data-testid="stMarkdownContainer"] em {
+        color: #2C3E50 !important;
+    }
+    
+    /* Force all Streamlit output elements to be visible */
+    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo,
+    .stMarkdown *, .stText *, .stTextInput *, .stTextArea *, .stSelectbox *, .stNumberInput *, .stSlider *, .stCheckbox *, .stRadio *, .stMetric *, .stAlert *, .stSuccess *, .stError *, .stWarning *, .stInfo * {
+        color: #2C3E50 !important;
+    }
+    
+    /* Ensure calculation outputs are visible */
+    .stMarkdown div[data-testid="stMarkdownContainer"] {
+        background: white !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    /* Force all text content to be visible regardless of theme */
+    * {
+        color: #2C3E50 !important;
+    }
+    
+    /* Override any dark theme text colors */
+    [data-testid="stAppViewContainer"] * {
+        color: #2C3E50 !important;
+    }
+    
     /* Ensure sidebar text is visible */
     .css-1d391kg .stMarkdown, .css-1d391kg .stText {
         color: #2C3E50 !important;
@@ -636,23 +702,35 @@ def show_market():
                 result = ai.get_market_prices(crop)
                 
                 if result:
+                    # Use st.write for better dark theme compatibility
+                    st.markdown("### 📊 Market Analysis Results")
                     st.markdown(f"""
-                    <div class="result-card">
-                        <h4>📊 {result['crop'].upper()} Market Intelligence</h4>
-                        <p><strong>Current Price:</strong> KSH {result['current_price']}/kg</p>
-                        <p><strong>Forecast Price:</strong> KSH {result['forecast_price']}/kg</p>
-                        <p><strong>Trend:</strong> {result['trend']}</p>
-                        <p><strong>Confidence:</strong> {(result['confidence'] * 100):.1f}%</p>
-                        <p><strong>💡 Recommendation:</strong> {result['recommendation']}</p>
+                    <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 5px solid #4CAF50; margin: 1rem 0;">
+                        <h4 style="color: #2C3E50;">{result['crop'].upper()} Market Intelligence</h4>
+                        <p style="color: #2C3E50;"><strong>Current Price:</strong> KSH {result['current_price']}/kg</p>
+                        <p style="color: #2C3E50;"><strong>Forecast Price:</strong> KSH {result['forecast_price']}/kg</p>
+                        <p style="color: #2C3E50;"><strong>Trend:</strong> {result['trend']}</p>
+                        <p style="color: #2C3E50;"><strong>Confidence:</strong> {(result['confidence'] * 100):.1f}%</p>
+                        <p style="color: #2C3E50;"><strong>💡 Recommendation:</strong> {result['recommendation']}</p>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Mobile-friendly price comparison
+                    # Mobile-friendly price comparison with explicit styling
                     price_cols = st.columns(2)
                     with price_cols[0]:
-                        st.metric("Current Price", f"KSH {result['current_price']}/kg")
+                        st.markdown(f"""
+                        <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; margin: 0.5rem 0;">
+                            <h3 style="color: #2C3E50; margin: 0;">Current Price</h3>
+                            <p style="color: #2C3E50; font-size: 1.2rem; font-weight: bold; margin: 0;">KSH {result['current_price']}/kg</p>
+                        </div>
+                        """, unsafe_allow_html=True)
                     with price_cols[1]:
-                        st.metric("Forecast Price", f"KSH {result['forecast_price']}/kg")
+                        st.markdown(f"""
+                        <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; margin: 0.5rem 0;">
+                            <h3 style="color: #2C3E50; margin: 0;">Forecast Price</h3>
+                            <p style="color: #2C3E50; font-size: 1.2rem; font-weight: bold; margin: 0;">KSH {result['forecast_price']}/kg</p>
+                        </div>
+                        """, unsafe_allow_html=True)
                 else:
                     st.error("❌ Unable to fetch market data. Please try again.")
         except Exception as e:
@@ -686,17 +764,19 @@ def show_loans():
                     status_icon = "✅" if result['eligible'] else "❌"
                     status_text = "ELIGIBLE" if result['eligible'] else "NOT ELIGIBLE"
                     
+                    # Use explicit styling for dark theme compatibility
+                    st.markdown("### 💰 Loan Assessment Results")
                     st.markdown(f"""
-                    <div class="result-card">
-                        <h4>{status_icon} Loan Assessment Result</h4>
-                        <p><strong>Status:</strong> {status_text}</p>
-                        <p><strong>Probability:</strong> {(result['probability'] * 100):.1f}%</p>
-                        <p><strong>Recommended Amount:</strong> KSH {result['recommended_amount']:,.2f}</p>
-                        <p><strong>Risk Level:</strong> {result['risk_level']}</p>
-                        <p><strong>Score:</strong> {result['score']}/8</p>
-                        <h5>📋 Conditions:</h5>
-                        <ul>
-                            {''.join([f'<li>{condition}</li>' for condition in result['conditions']])}
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 5px solid #2E7D32; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h4 style="color: #2C3E50;">{status_icon} Loan Assessment Result</h4>
+                        <p style="color: #2C3E50;"><strong>Status:</strong> {status_text}</p>
+                        <p style="color: #2C3E50;"><strong>Probability:</strong> {(result['probability'] * 100):.1f}%</p>
+                        <p style="color: #2C3E50;"><strong>Recommended Amount:</strong> KSH {result['recommended_amount']:,.2f}</p>
+                        <p style="color: #2C3E50;"><strong>Risk Level:</strong> {result['risk_level']}</p>
+                        <p style="color: #2C3E50;"><strong>Score:</strong> {result['score']}/8</p>
+                        <h5 style="color: #2C3E50;">📋 Conditions:</h5>
+                        <ul style="color: #2C3E50;">
+                            {''.join([f'<li style="color: #2C3E50;">{condition}</li>' for condition in result['conditions']])}
                         </ul>
                     </div>
                     """, unsafe_allow_html=True)
