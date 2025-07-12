@@ -44,7 +44,7 @@ st.markdown("""
         }
     }
     
-    /* Main styles with better contrast */
+    /* Main styles with better contrast for dark themes */
     .main-header {
         background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
         padding: 2rem;
@@ -80,8 +80,18 @@ st.markdown("""
         background-color: #f8f9fa !important;
     }
     
-    /* Ensure text is readable */
+    /* Ensure text is readable on all themes */
     .stMarkdown, .stText, .stSelectbox, .stNumberInput, .stSlider {
+        color: #2C3E50 !important;
+    }
+    
+    /* Force text visibility on dark themes */
+    .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #2C3E50 !important;
+    }
+    
+    /* Ensure all Streamlit text elements are visible */
+    .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio {
         color: #2C3E50 !important;
     }
     
@@ -140,6 +150,11 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     }
     
+    /* Force metric text visibility */
+    .stMetric > div > div > div {
+        color: #2C3E50 !important;
+    }
+    
     /* Mobile-friendly info boxes */
     .stAlert {
         background: #E3F2FD !important;
@@ -172,6 +187,34 @@ st.markdown("""
         color: #2C3E50 !important;
         border: 2px solid #4CAF50 !important;
         border-radius: 8px !important;
+    }
+    
+    /* Force all text inputs to be visible */
+    .stTextInput > div > div > input {
+        background: white !important;
+        color: #2C3E50 !important;
+        border: 2px solid #4CAF50 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Ensure sidebar text is visible */
+    .css-1d391kg .stMarkdown, .css-1d391kg .stText {
+        color: #2C3E50 !important;
+    }
+    
+    /* Force all Streamlit elements to have proper contrast */
+    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo {
+        color: #2C3E50 !important;
+    }
+    
+    /* Override any dark theme styles */
+    [data-testid="stAppViewContainer"] {
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Ensure main content area has proper background */
+    .main .block-container {
+        background-color: #f8f9fa !important;
     }
     
     /* Hide sidebar on mobile when not needed */
