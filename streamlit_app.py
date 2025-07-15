@@ -2,53 +2,17 @@ import streamlit as st
 import random
 from datetime import datetime, timedelta
 
-# Page config with mobile optimization and cache busting
+# Page config with classic sidebar
 st.set_page_config(
-    page_title="🌾 AgriWise AI v2.1",
+    page_title="🌾 AgriWise AI",
     page_icon="🌾",
     layout="wide",
-    initial_sidebar_state="collapsed"  # Start collapsed on mobile
+    initial_sidebar_state="expanded"
 )
 
-# Force cache refresh
-st.cache_data.clear()
-st.cache_resource.clear()
-
-# Mobile-optimized CSS
+# Minimal, essential CSS for dark theme compatibility and polish
 st.markdown("""
 <style>
-    /* Mobile-first responsive design */
-    @media (max-width: 768px) {
-        .main-header {
-            padding: 1rem !important;
-            margin-bottom: 1rem !important;
-        }
-        .main-header h1 {
-            font-size: 2rem !important;
-        }
-        .main-header h3 {
-            font-size: 1rem !important;
-        }
-        .feature-card {
-            padding: 1rem !important;
-            margin: 0.5rem 0 !important;
-        }
-        .result-card {
-            padding: 1rem !important;
-            margin: 0.5rem 0 !important;
-        }
-        /* Fix sidebar for mobile */
-        .css-1d391kg {
-            width: 100% !important;
-        }
-        /* Ensure content is visible on mobile */
-        .main .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-        }
-    }
-    
-    /* Main styles with better contrast for dark themes */
     .main-header {
         background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
         padding: 2rem;
@@ -58,38 +22,18 @@ st.markdown("""
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
-    .feature-card {
+    .feature-card, .result-card {
         background: white !important;
         color: #2C3E50 !important;
         padding: 1.5rem;
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin: 1rem 0;
         border-left: 5px solid #4CAF50;
     }
-    
     .result-card {
-        background: linear-gradient(135deg, #E8F5E8, #F1F8E9) !important;
-        color: #2C3E50 !important;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin: 1rem 0;
         border-left: 5px solid #2E7D32;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
-    /* Fix sidebar styling */
-    .css-1d391kg {
-        background-color: #f8f9fa !important;
-    }
-    
-    /* Ensure text is readable on all themes - but don't interfere with functionality */
-    .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: #2C3E50 !important;
-    }
-    
-    /* Mobile-friendly buttons */
     .stButton > button {
         background: linear-gradient(135deg, #2E7D32, #4CAF50) !important;
         color: white !important;
@@ -100,309 +44,74 @@ st.markdown("""
         width: 100% !important;
         margin: 0.5rem 0 !important;
     }
-    
     .stButton > button:hover {
         background: linear-gradient(135deg, #1B5E20, #388E3C) !important;
-        transform: translateY(-2px) !important;
     }
-    
-    /* Mobile-friendly file uploader */
-    .stFileUploader {
-        border: 2px dashed #4CAF50 !important;
-        border-radius: 12px !important;
-        padding: 2rem !important;
-        text-align: center !important;
-        background: #f8f9fa !important;
+    .stFileUploader, .stNumberInput > div > div > input, .stTextInput > div > div > input, .stTextArea > div > div > textarea {
+        background: white !important;
+        color: #2C3E50 !important;
+        border: 2px solid #4CAF50 !important;
+        border-radius: 8px !important;
     }
-    
-    /* Mobile-friendly selectbox - fix mobile interaction */
     .stSelectbox > div > div {
         background: white !important;
         color: #2C3E50 !important;
         border: 2px solid #4CAF50 !important;
         border-radius: 8px !important;
     }
-    
-    /* Fix mobile selectbox dropdown behavior */
-    @media (max-width: 768px) {
-        .stSelectbox > div > div[data-baseweb="select"] {
-            position: relative !important;
-        }
-        .stSelectbox > div > div[data-baseweb="popover"] {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            z-index: 9999 !important;
-            background: white !important;
-            border: 2px solid #4CAF50 !important;
-            border-radius: 8px !important;
-            max-height: 200px !important;
-            overflow-y: auto !important;
-        }
-    }
-    
-    /* Mobile-friendly number input */
-    .stNumberInput > div > div > input {
-        background: white !important;
+    .stMetric, .stMetric * {
         color: #2C3E50 !important;
-        border: 2px solid #4CAF50 !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Mobile-friendly slider */
-    .stSlider > div > div > div > div {
-        background: #4CAF50 !important;
-    }
-    
-    /* Ensure metrics are visible */
-    .stMetric {
         background: white !important;
-        padding: 1rem !important;
-        border-radius: 8px !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     }
-    
-    /* Force metric text visibility */
-    .stMetric > div > div > div {
-        color: #2C3E50 !important;
-    }
-    
-    /* Mobile-friendly info boxes */
-    .stAlert {
-        background: #E3F2FD !important;
-        color: #1565C0 !important;
-        border: 1px solid #2196F3 !important;
+    .stAlert, .stSuccess, .stError {
         border-radius: 8px !important;
         padding: 1rem !important;
     }
-    
-    /* Mobile-friendly success/error messages */
-    .stSuccess {
-        background: #E8F5E8 !important;
-        color: #2E7D32 !important;
-        border: 1px solid #4CAF50 !important;
-        border-radius: 8px !important;
-        padding: 1rem !important;
-    }
-    
-    .stError {
-        background: #FFEBEE !important;
-        color: #C62828 !important;
-        border: 1px solid #F44336 !important;
-        border-radius: 8px !important;
-        padding: 1rem !important;
-    }
-    
-    /* Mobile-friendly text areas */
-    .stTextArea > div > div > textarea {
-        background: white !important;
-        color: #2C3E50 !important;
-        border: 2px solid #4CAF50 !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Force all text inputs to be visible */
-    .stTextInput > div > div > input {
-        background: white !important;
-        color: #2C3E50 !important;
-        border: 2px solid #4CAF50 !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Force all Streamlit elements to have proper contrast */
-    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo {
-        color: #2C3E50 !important;
-    }
-    
-    /* Force calculation results to be visible on dark themes */
-    .stMarkdown div, .stMarkdown p, .stMarkdown span, .stMarkdown strong, .stMarkdown em {
-        color: #2C3E50 !important;
-    }
-    
-    /* Ensure all result displays are visible */
-    .result-card, .result-card *, .result-card p, .result-card h4, .result-card h5, .result-card ul, .result-card li {
-        color: #2C3E50 !important;
-        background: white !important;
-    }
-    
-    /* Force metric displays to be visible */
-    .stMetric, .stMetric *, .stMetric div, .stMetric label, .stMetric span {
-        color: #2C3E50 !important;
-        background: white !important;
-    }
-    
-    /* Ensure all text outputs are visible */
-    .stText, .stText *, .stText div, .stText span, .stText p {
-        color: #2C3E50 !important;
-    }
-    
-    /* Ensure all dynamic content is visible */
-    .stMarkdown div[data-testid="stMarkdownContainer"] p,
-    .stMarkdown div[data-testid="stMarkdownContainer"] div,
-    .stMarkdown div[data-testid="stMarkdownContainer"] span,
-    .stMarkdown div[data-testid="stMarkdownContainer"] strong,
-    .stMarkdown div[data-testid="stMarkdownContainer"] em {
-        color: #2C3E50 !important;
-    }
-    
-    /* Force all Streamlit output elements to be visible */
-    .stMarkdown, .stText, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput, .stSlider, .stCheckbox, .stRadio, .stMetric, .stAlert, .stSuccess, .stError, .stWarning, .stInfo,
-    .stMarkdown *, .stText *, .stTextInput *, .stTextArea *, .stSelectbox *, .stNumberInput *, .stSlider *, .stCheckbox *, .stRadio *, .stMetric *, .stAlert *, .stSuccess *, .stError *, .stWarning *, .stInfo * {
-        color: #2C3E50 !important;
-    }
-    
-    /* Ensure calculation outputs are visible */
-    .stMarkdown div[data-testid="stMarkdownContainer"] {
-        background: white !important;
-        padding: 1rem !important;
-        border-radius: 8px !important;
-        margin: 0.5rem 0 !important;
-    }
-    
-    /* Force all text content to be visible regardless of theme */
-    * {
-        color: #2C3E50 !important;
-    }
-    
-    /* Override any dark theme text colors */
-    [data-testid="stAppViewContainer"] * {
-        color: #2C3E50 !important;
-    }
-    
-    /* Ensure sidebar text is visible */
-    .css-1d391kg .stMarkdown, .css-1d391kg .stText {
-        color: #2C3E50 !important;
-    }
-    
-    /* Override any dark theme styles */
     [data-testid="stAppViewContainer"] {
         background-color: #f8f9fa !important;
     }
-    
-    /* Ensure main content area has proper background */
     .main .block-container {
         background-color: #f8f9fa !important;
     }
-    
-    /* Fix mobile sidebar behavior */
-    @media (max-width: 768px) {
-        /* Make sidebar work properly on mobile */
-        .css-1d391kg {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 1000 !important;
-            background: rgba(0, 0, 0, 0.5) !important;
-            display: none !important;
-        }
-        
-        /* Show sidebar when active */
-        .css-1d391kg[data-testid="collapsedControl"] {
-            display: block !important;
-        }
-        
-        .css-1d391kg > div {
-            background: white !important;
-            width: 80% !important;
-            height: 100% !important;
-            padding: 1rem !important;
-            overflow-y: auto !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-        }
-        
-        /* Ensure sidebar button is visible */
-        .css-1d391kg [data-testid="collapsedControl"] {
-            display: block !important;
-            position: fixed !important;
-            top: 1rem !important;
-            left: 1rem !important;
-            z-index: 1001 !important;
-            background: #4CAF50 !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 50% !important;
-            width: 50px !important;
-            height: 50px !important;
-            font-size: 1.5rem !important;
-        }
-    }
-    
-    /* Add mobile touch handling for selectbox */
-    @media (max-width: 768px) {
-        .stSelectbox > div > div[data-baseweb="select"] {
-            touch-action: manipulation !important;
-        }
-        .stSelectbox > div > div[data-baseweb="popover"] {
-            touch-action: manipulation !important;
-        }
-    }
-    
-    /* Force all outputs to be visible on dark themes */
-    .stMarkdown div[data-testid="stMarkdownContainer"],
-    .stMarkdown div[data-testid="stMarkdownContainer"] *,
-    .stMarkdown div[data-testid="stMarkdownContainer"] p,
-    .stMarkdown div[data-testid="stMarkdownContainer"] div,
-    .stMarkdown div[data-testid="stMarkdownContainer"] span,
-    .stMarkdown div[data-testid="stMarkdownContainer"] strong,
-    .stMarkdown div[data-testid="stMarkdownContainer"] em,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h1,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h2,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h3,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h4,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h5,
-    .stMarkdown div[data-testid="stMarkdownContainer"] h6 {
-        color: #2C3E50 !important;
-        background: white !important;
-    }
 </style>
-
-<script>
-// Mobile sidebar improvement
-document.addEventListener('DOMContentLoaded', function() {
-    // Close selectbox dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.stSelectbox')) {
-            const dropdowns = document.querySelectorAll('.stSelectbox [data-baseweb="popover"]');
-            dropdowns.forEach(dropdown => {
-                if (dropdown.style.display !== 'none') {
-                    dropdown.style.display = 'none';
-                }
-            });
-        }
-    });
-    
-    // Improve mobile touch handling
-    if (window.innerWidth <= 768) {
-        const selectboxes = document.querySelectorAll('.stSelectbox');
-        selectboxes.forEach(selectbox => {
-            selectbox.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                const input = selectbox.querySelector('input');
-                if (input) {
-                    input.focus();
-                }
-            });
-        });
-        
-        // Fix mobile sidebar
-        const sidebarButton = document.querySelector('[data-testid="collapsedControl"]');
-        if (sidebarButton) {
-            sidebarButton.addEventListener('click', function() {
-                const sidebar = document.querySelector('.css-1d391kg');
-                if (sidebar) {
-                    sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
-                }
-            });
-        }
-    }
-});
-</script>
 """, unsafe_allow_html=True)
+
+# Remove all custom mobile nav and hamburger hacks, use only Streamlit's sidebar
+# Remove all JavaScript overrides
+
+# Main app with classic sidebar navigation
+def main():
+    st.markdown("""
+    <div class="main-header">
+        <h1>🌾 AgriWise AI</h1>
+        <h3>Smart Farmer Ecosystem for Sustainable Agriculture</h3>
+        <p>Transforming subsistence farming into profitable agribusiness</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.sidebar.title("🌾 Smart Farming Tools")
+    tool = st.sidebar.selectbox(
+        "Choose a Tool",
+        ["🏠 Dashboard", "🔍 Disease Detection", "🌤️ Weather Prediction", "📊 Market Intelligence", "💰 Loan Assessment", "🗣️ Voice Interface"]
+    )
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**🌐 Version:** Streamlit Classic")
+    st.sidebar.markdown("**📱 Optimized for:** Mobile & Desktop")
+    
+    if tool == "🏠 Dashboard":
+        show_dashboard()
+    elif tool == "🔍 Disease Detection":
+        show_disease()
+    elif tool == "🌤️ Weather Prediction":
+        show_weather()
+    elif tool == "📊 Market Intelligence":
+        show_market()
+    elif tool == "💰 Loan Assessment":
+        show_loans()
+    elif tool == "🗣️ Voice Interface":
+        show_voice()
+    else:
+        show_dashboard()
 
 class AgriWiseAI:
     def __init__(self):
@@ -592,96 +301,6 @@ def load_ai():
     return AgriWiseAI()
 
 ai = load_ai()
-
-# Main app with mobile-optimized navigation
-def main():
-    st.markdown("""
-    <div class="main-header">
-        <h1>🌾 AgriWise AI</h1>
-        <h3>Smart Farmer Ecosystem for Sustainable Agriculture</h3>
-        <p>Transforming subsistence farming into profitable agribusiness</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Mobile-friendly navigation
-    st.markdown("""
-    <style>
-    @media (max-width: 768px) {
-        .mobile-nav {
-            display: flex !important;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .mobile-nav button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            flex: 1;
-            min-width: 120px;
-        }
-        .mobile-nav button:hover {
-            background: #2E7D32;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Mobile navigation buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🏠 Dashboard", use_container_width=True):
-            st.session_state.current_tool = "dashboard"
-        if st.button("🔍 Disease", use_container_width=True):
-            st.session_state.current_tool = "disease"
-        if st.button("🌤️ Weather", use_container_width=True):
-            st.session_state.current_tool = "weather"
-    with col2:
-        if st.button("📊 Market", use_container_width=True):
-            st.session_state.current_tool = "market"
-        if st.button("💰 Loan", use_container_width=True):
-            st.session_state.current_tool = "loan"
-        if st.button("🗣️ Voice", use_container_width=True):
-            st.session_state.current_tool = "voice"
-    
-    # Desktop sidebar
-    st.sidebar.title("🌾 Smart Farming Tools")
-    
-    tool = st.sidebar.selectbox(
-        "Choose a Tool",
-        ["🏠 Dashboard", "🔍 Disease Detection", "🌤️ Weather Prediction", "📊 Market Intelligence", "💰 Loan Assessment", "🗣️ Voice Interface"]
-    )
-    
-    # Add version info
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("**🌐 Version:** Streamlit Mobile")
-    st.sidebar.markdown("**📱 Optimized for:** Mobile & Desktop")
-    
-    # Check for mobile navigation
-    current_tool = getattr(st.session_state, 'current_tool', None)
-    
-    # Route to appropriate function
-    if current_tool == "dashboard" or tool == "🏠 Dashboard":
-        show_dashboard()
-    elif current_tool == "disease" or tool == "🔍 Disease Detection":
-        show_disease()
-    elif current_tool == "weather" or tool == "🌤️ Weather Prediction":
-        show_weather()
-    elif current_tool == "market" or tool == "📊 Market Intelligence":
-        show_market()
-    elif current_tool == "loan" or tool == "💰 Loan Assessment":
-        show_loans()
-    elif current_tool == "voice" or tool == "🗣️ Voice Interface":
-        show_voice()
-    else:
-        show_dashboard()
 
 def show_dashboard():
     st.title("🌾 Welcome to AgriWise AI")
